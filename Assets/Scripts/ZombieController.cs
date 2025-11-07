@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public enum STATES
@@ -11,11 +12,13 @@ public class ZombieController : MonoBehaviour
     public STATES _states;
 
     ZombieShootScript zShoot;
+    GameManager gameManager;
     Animator _anim;
     Transform _Player;
 
     public float moveSpeed = 1.5f;
     public float attackDistance;
+    public float attackTimer = 2.5f;
 
     public bool inAction;
     public bool isHurt;
@@ -24,6 +27,7 @@ public class ZombieController : MonoBehaviour
 
     private void Start()
     {
+        gameManager = GameObject.FindFirstObjectByType<GameManager>();
         zShoot = GetComponent<ZombieShootScript>();
         _anim = GetComponent<Animator>();
         _Player = GameObject.FindGameObjectWithTag("Player").transform;
@@ -52,11 +56,33 @@ public class ZombieController : MonoBehaviour
                 {
                     _states = STATES.hurt;
                 }
+                if (_distance <= attackDistance && !inAction)
+                {
+                    inAction = true;
+                    StartCoroutine(AttackPlayer());
+                }
             }
 
             _anim.SetBool("Moving", isMoving);
             _anim.SetBool("Hurt", isHurt);
             _anim.SetBool ("Dead", isDead);
         }
+    }
+
+    IEnumerator AttackPlayer()
+    {
+        while(!isDead)
+        {
+            if (!isHurt)
+            {
+                _anim.SetTrigger("Attack");
+            }
+            yield return new WaitForSeconds(attackTimer);
+        }
+    }
+
+    public void AttackTrigger()
+    {
+        gameManager.HurtPlayer();
     }
 }
