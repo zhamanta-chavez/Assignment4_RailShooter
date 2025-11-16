@@ -14,7 +14,7 @@ public class ZombieController : MonoBehaviour
     ZombieShootScript zShoot;
     GameManager gameManager;
     Animator _anim;
-    Transform _Player;
+    public Transform stopPoint;
 
     public float moveSpeed = 1.5f;
     public float attackDistance;
@@ -30,20 +30,19 @@ public class ZombieController : MonoBehaviour
         gameManager = GameObject.FindFirstObjectByType<GameManager>();
         zShoot = GetComponent<ZombieShootScript>();
         _anim = GetComponent<Animator>();
-        _Player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     private void Update()
     {
         if (!isDead && !isHurt)
         {
-            float _distance = Vector3.Distance(transform.position, _Player.position);
+            float _distance = Vector3.Distance(transform.position, stopPoint.position);
 
             if (_distance > attackDistance)
             {
                 _states = STATES.moving;
                 isMoving = true;
-                transform.position = Vector3.MoveTowards(transform.position, _Player.position, moveSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, stopPoint.position, moveSpeed * Time.deltaTime);
             }
             else
             {

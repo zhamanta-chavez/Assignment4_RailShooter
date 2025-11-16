@@ -7,12 +7,14 @@ public class ZombieShootScript : MonoBehaviour
     public int zombieHealth = 3;
     Animator _anim;
     ZombieController _zombieCTRL;
+    PathFollowScript _follow;
 
     public void Start()
     {
         {
             _anim = GetComponent<Animator>();
             _zombieCTRL = GetComponent<ZombieController>();
+            _follow = GameObject.FindFirstObjectByType<PathFollowScript>();
         }
     }
 
@@ -40,6 +42,7 @@ public class ZombieShootScript : MonoBehaviour
 
     public void ZombieDead(bool _isShotgun)
     {
+        _zombieCTRL.isDead = true;
         if (_isShotgun)
         {
             _anim.SetTrigger("Dead02");
@@ -48,6 +51,7 @@ public class ZombieShootScript : MonoBehaviour
         {
             _anim.SetTrigger("Dead01");
         }
+        _follow.SubtractEnemy();
         Destroy(gameObject, 2f);
     }
 
