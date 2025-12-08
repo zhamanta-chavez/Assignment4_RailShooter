@@ -6,6 +6,8 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     public Image hitFlash;
     public Image hurtDisplay;
 
@@ -38,8 +40,17 @@ public class GameManager : MonoBehaviour
     public TMP_Text bulletText;
     public TMP_Text shellText;
 
+    [Header("Boss Variables")]
+    public float bossHealth = 100;
+    public Image bossMeter;
+   
+
     private void Start()
     {
+        if (Instance = null)
+        {
+            Instance = this;
+        }
         hitFlash.enabled = false;
         deathPanel.SetActive(false);
         canHurt = true;
@@ -57,8 +68,8 @@ public class GameManager : MonoBehaviour
             shotgunIcon.sprite = shotEmpty;
         }
 
-            // Bullet count
-            bulletText.text = bulletCount.ToString();
+        // Bullet count
+        bulletText.text = bulletCount.ToString();
         shellText.text = shellCount.ToString();
 
         Color _hurt = hurtDisplay.color;
@@ -113,6 +124,8 @@ public class GameManager : MonoBehaviour
         {
             playerHealth = numberOfHearts;
         }
+
+        bossMeter.fillAmount = bossHealth / 100;
     }
 
     public void HurtPlayer()

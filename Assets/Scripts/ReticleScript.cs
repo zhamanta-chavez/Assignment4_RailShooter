@@ -8,11 +8,13 @@ public class ReticleScript : MonoBehaviour
 
     private void OnMouseEnter()
     {
+        Debug.Log("Entered");
         Cursor.SetCursor(cursorTexture, hotSpot, cursorMode);
     }
 
     private void OnMouseExit()
     {
+        Debug.Log("Exited");
         Cursor.SetCursor(null, hotSpot, cursorMode);
     }
 }

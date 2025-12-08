@@ -8,6 +8,9 @@ TagManager:
   - Body
   - Health
   - Shotgun
+  - WeakPoint
+  - Boundary
+  - Boss Target
   layers:
   - Default
   - TransparentFX

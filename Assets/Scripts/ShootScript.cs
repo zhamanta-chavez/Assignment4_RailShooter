@@ -77,6 +77,26 @@ public class ShootScript : MonoBehaviour
                     gameManager.playerHealth++;
                     Destroy(hit.transform.gameObject);
                 }
+
+                if (hit.transform.gameObject.tag == "BossTarget")
+                {
+                    Debug.Log("TargetHit!");
+                    BossController _boss = GameObject.FindFirstObjectByType<BossController>();
+                    GameManager.Instance.bossHealth -= 4;
+                    _boss.StunBoss();
+                    Destroy(hit.transform.gameObject);
+                }
+
+                if (hit.transform.gameObject.tag == "WeakPoint")
+                {
+                    Debug.Log("weak Point Hit!");
+                    GameManager.Instance.bossHealth -= 1;
+                    if (GameManager.Instance.bossHealth <= 0)
+                    {
+                        BossController _boss = GameObject.FindFirstObjectByType<BossController>();
+                        _boss.BossDeath();
+                    }
+                }
             }
         }
         else
