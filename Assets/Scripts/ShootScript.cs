@@ -1,8 +1,9 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ShootScript : MonoBehaviour
 {
-    GameManager gameManager;
+    [SerializeField] GameManager gameManager;
 
     public float fireRange = 500f;
     public int shotType = 1;
@@ -10,7 +11,7 @@ public class ShootScript : MonoBehaviour
 
     private void Awake()
     {
-        gameManager = GameObject.FindFirstObjectByType<GameManager>();  
+        //gameManager = GameObject.FindFirstObjectByType<GameManager>();  
     }
 
     private void Update()
@@ -30,71 +31,69 @@ public class ShootScript : MonoBehaviour
     {
         if (gameManager.bulletCount > 0 || gameManager.shellCount > 0)
         {
-            if (gameManager.shellCount > 0)
+            if (gameManager.bossCanDie == true)
             {
-                gameManager.shellCount--;
-                shotType = 5;
-                isShotGun = true;
-            }
-            else if (gameManager.bulletCount > 0)
-            {
-                gameManager.bulletCount--;
-                shotType = 1;
-                isShotGun = false;
-            }
-
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out hit, fireRange))
-            {
-                if (hit.transform.gameObject.tag == "Head")
+                if (gameManager.shellCount > 0)
                 {
-                    Debug.Log("Head Shot!");
-                    bool _head = true;
-                    GameObject _zombie = hit.transform.gameObject;
-                    ZombieShootScript zShoot = _zombie.GetComponentInParent<ZombieShootScript>();
-                    zShoot.TakeDamage(shotType, _head, isShotGun);
+                    gameManager.shellCount--;
+                    shotType = 5;
+                    isShotGun = true;
+                }
+                else if (gameManager.bulletCount > 0)
+                {
+                    gameManager.bulletCount--;
+                    shotType = 1;
+                    isShotGun = false;
                 }
 
-                if (hit.transform.gameObject.tag == "Body")
-                {
-                    Debug.Log("Body Shot!");
-                    bool _head = false;
-                    GameObject _zombie = hit.transform.gameObject;
-                    ZombieShootScript zShoot = _zombie.GetComponentInParent<ZombieShootScript>();
-                    zShoot.TakeDamage(shotType, _head, isShotGun);
-                }
+                RaycastHit hit;
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                if (hit.transform.gameObject.tag == "Shotgun")
+                if (Physics.Raycast(ray, out hit, fireRange))
                 {
-                    gameManager.shellCount = 10;
-                    Destroy(hit.transform.gameObject);
-                }
-
-                if (hit.transform.gameObject.tag == "Health")
-                {
-                    gameManager.playerHealth++;
-                    Destroy(hit.transform.gameObject);
-                }
-
-                if (hit.transform.gameObject.tag == "BossTarget")
-                {
-                    Debug.Log("TargetHit!");
-                    BossController _boss = GameObject.FindFirstObjectByType<BossController>();
-                    GameManager.Instance.bossHealth -= 4;
-                    _boss.StunBoss();
-                    Destroy(hit.transform.gameObject);
-                }
-
-                if (hit.transform.gameObject.tag == "WeakPoint")
-                {
-                    Debug.Log("weak Point Hit!");
-                    GameManager.Instance.bossHealth -= 1;
-                    if (GameManager.Instance.bossHealth <= 0)
+                    if (hit.transform.gameObject.tag == "Head")
                     {
+                        Debug.Log("Head Shot!");
+                        bool _head = true;
+                        GameObject _zombie = hit.transform.gameObject;
+                        ZombieShootScript zShoot = _zombie.GetComponentInParent<ZombieShootScript>();
+                        zShoot.TakeDamage(shotType, _head, isShotGun);
+                    }
+
+                    if (hit.transform.gameObject.tag == "Body")
+                    {
+                        Debug.Log("Body Shot!");
+                        bool _head = false;
+                        GameObject _zombie = hit.transform.gameObject;
+                        ZombieShootScript zShoot = _zombie.GetComponentInParent<ZombieShootScript>();
+                        zShoot.TakeDamage(shotType, _head, isShotGun);
+                    }
+
+                    if (hit.transform.gameObject.tag == "Shotgun")
+                    {
+                        gameManager.shellCount = 10;
+                        Destroy(hit.transform.gameObject);
+                    }
+
+                    if (hit.transform.gameObject.tag == "Health")
+                    {
+                        gameManager.playerHealth++;
+                        Destroy(hit.transform.gameObject);
+                    }
+
+                    if (hit.transform.gameObject.tag == "Boss Target")
+                    {
+                        Debug.Log("TargetHit!");
                         BossController _boss = GameObject.FindFirstObjectByType<BossController>();
-                        _boss.BossDeath();
+                        gameManager.bossHealth -= 4;
+                        _boss.StunBoss();
+                        Destroy(hit.transform.gameObject);
+                    }
+
+                    if (hit.transform.gameObject.tag == "WeakPoint")
+                    {
+                        Debug.Log("weak Point Hit!");
+                        gameManager.bossHealth -= 1;
                     }
                 }
             }

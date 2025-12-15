@@ -1,26 +1,42 @@
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BossController : MonoBehaviour
 {
     Animator anim;
+    [SerializeField] GameManager gameManager;
+    [SerializeField] TargetSpawnScript __spawnTargets;
     public float moveSpeed = .5f;
 
     public bool walkingForward;
     public bool isAttacking;
+    public bool isStunned;
     public bool inAction;
     public bool isDead;
+    public bool canAttack;
 
     [SerializeField] public int numberOfTargets = 5;
 
     public Transform pointA;
     public Transform pointB;
 
+    public UnityEvent OnTargetsShot;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         walkingForward = true;
         anim = GetComponent<Animator>();
+        anim.ResetTrigger("Death");
+        Debug.Log("Start");
+        anim.SetBool("Forward", walkingForward);
+
+        inAction = false;
+        isDead = false;
+        isAttacking = false;
+        isStunned = false;
+        canAttack = true;
     }
 
     // Update is called once per frame
@@ -31,22 +47,25 @@ public class BossController : MonoBehaviour
             if (walkingForward)
             {
                 transform.position = Vector3.MoveTowards(transform.position, pointB.position, moveSpeed * Time.deltaTime);
-                anim.SetBool("Forward", walkingForward);
+                //anim.SetBool("Forward", walkingForward);
             }
-            else
+            else if (isAttacking == false && isStunned == false)
             {
                 transform.position = Vector3.MoveTowards(transform.position, pointA.position, moveSpeed * Time.deltaTime);
+                //anim.SetBool("Forward", walkingForward);
             }
 
             float _distance = Vector3.Distance(transform.position, pointB.position);
-            if (_distance < 1 && !isAttacking)
+            if (_distance < .5 && canAttack)
             {
                 isAttacking = true;
-                TargetSpawnScript __spawnTargets = GameObject.FindFirstObjectByType<TargetSpawnScript>();
+                canAttack = false;
+                anim.SetTrigger("Attack");
+                isAttacking = true;
                 __spawnTargets.SpawnTargets();
+                numberOfTargets = __spawnTargets.numberOfTargets;
             }
 
-            anim.SetBool("Forward", walkingForward);
             anim.SetBool("Attacking", isAttacking);
         }
     }
@@ -55,16 +74,14 @@ public class BossController : MonoBehaviour
     {
         if (other.gameObject.tag == "Boundary")
         {
-            if (walkingForward)
-            {
-                inAction = true;
-                anim.SetTrigger("Attack");
-                //walkingForward = false;
-            }
-            else
-            {
-                walkingForward = true;
-            }
+            walkingForward = false;
+            anim.SetBool("Forward", walkingForward);
+        }
+        else if (other.gameObject.tag == "Start")
+        {
+            canAttack = true;
+            walkingForward = true;
+            anim.SetBool("Forward", walkingForward);
         }
     }
 
@@ -74,27 +91,38 @@ public class BossController : MonoBehaviour
         inAction = false;
         walkingForward = false;
         isAttacking = false;
+        isStunned = false;
     }
 
     public void StunBoss()
     {
         anim.SetTrigger("Stun");
+        isStunned = true;
         numberOfTargets--;
         if (numberOfTargets <= 0)
         {
             ResetBoss();
+            OnTargetsShot.Invoke();
         }
     }
 
     public void HurtPlayer()
     {
         Debug.Log("Hurt called");
-        GameManager.Instance.HurtPlayer();
+        gameManager.HurtPlayer();
     }
 
     public void BossDeath()
     {
+        Debug.Log("BossDeath called");
         isDead = true;
+        anim.ResetTrigger("Stun");
+        anim.ResetTrigger("Attack");
         anim.SetTrigger("Death");
+    }
+
+    public void ActivateCompletePanel()
+    {
+        gameManager.CompletePanelActivate();
     }
 }

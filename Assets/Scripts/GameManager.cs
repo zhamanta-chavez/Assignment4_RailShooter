@@ -1,21 +1,24 @@
 using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
-
     public Image hitFlash;
     public Image hurtDisplay;
+    public GameObject completePanel;
 
     public Image shotgunIcon;
     public Sprite shotFull;
     public Sprite shotEmpty;
 
-    public int playerHealth = 5;
+    public int playerHealth;
+    public int originalPlayerHealth;
 
     public GameObject deathPanel;
     public GameObject hudPanel;
@@ -24,6 +27,7 @@ public class GameManager : MonoBehaviour
     public float reloadDisplay;
 
     public bool canHurt;
+    public bool bossCanDie;
     public float hurtDisplayAlpha = 0;
     public float hurtDisplayerTimer = .5f;
 
@@ -36,6 +40,7 @@ public class GameManager : MonoBehaviour
     public int bulletCount;
     public int maxBulletCount;
     public int shellCount;
+    public int maxShellCount;
 
     public TMP_Text bulletText;
     public TMP_Text shellText;
@@ -43,21 +48,34 @@ public class GameManager : MonoBehaviour
     [Header("Boss Variables")]
     public float bossHealth = 100;
     public Image bossMeter;
-   
+
+    public UnityEvent OnBossDeath;
 
     private void Start()
     {
-        if (Instance = null)
-        {
-            Instance = this;
-        }
         hitFlash.enabled = false;
         deathPanel.SetActive(false);
         canHurt = true;
+        bossCanDie = true;
+
+        playerHealth = originalPlayerHealth;
+        bulletCount = maxBulletCount;
+        shellCount = maxShellCount;
+        completePanel.SetActive(false);
+        hudPanel.SetActive(true);
     }
 
     private void Update()
     {
+        if (bossCanDie)
+        {
+            if (bossHealth <= 0)
+            {
+                bossCanDie = false;
+                OnBossDeath.Invoke();
+            }
+        }
+
         // Shotgun Icon
         if (shellCount > 0)
         {
@@ -147,6 +165,7 @@ public class GameManager : MonoBehaviour
 
     void PlayerDead()
     {
+        hudPanel.SetActive(false);
         deathPanel.SetActive(true);
         Time.timeScale = 0f;
     }
@@ -166,5 +185,32 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(0);
+    }
+
+    public void ResetHealth()
+    {
+        playerHealth = originalPlayerHealth;
+    }
+
+    public void ResetNormalBullets()
+    {
+        bulletCount = maxBulletCount;
+    }
+
+    public void CompletePanelActivate()
+    {
+        completePanel.SetActive(true);
+    }
+
+    public void RestartBossLevel()
+    {
+        Debug.Log("Restart");
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(0);
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
     }
 }
