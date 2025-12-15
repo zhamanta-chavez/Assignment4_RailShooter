@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections;
 
 public class BossController : MonoBehaviour
 {
@@ -49,7 +50,7 @@ public class BossController : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position, pointB.position, moveSpeed * Time.deltaTime);
                 //anim.SetBool("Forward", walkingForward);
             }
-            else if (isAttacking == false && isStunned == false)
+            else if (!walkingForward && isAttacking == false && isStunned == false)
             {
                 transform.position = Vector3.MoveTowards(transform.position, pointA.position, moveSpeed * Time.deltaTime);
                 //anim.SetBool("Forward", walkingForward);
@@ -98,9 +99,11 @@ public class BossController : MonoBehaviour
     {
         anim.SetTrigger("Stun");
         isStunned = true;
+        StartCoroutine(StunTime());
         numberOfTargets--;
         if (numberOfTargets <= 0)
         {
+            gameManager.playerHealth = gameManager.originalPlayerHealth;
             ResetBoss();
             OnTargetsShot.Invoke();
         }
@@ -124,5 +127,11 @@ public class BossController : MonoBehaviour
     public void ActivateCompletePanel()
     {
         gameManager.CompletePanelActivate();
+    }
+
+    IEnumerator StunTime()
+    {
+        yield return new WaitForSeconds(1.5f);
+        isStunned = false;
     }
 }

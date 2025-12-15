@@ -100,7 +100,7 @@ public class ShootScript : MonoBehaviour
                     {
                         Debug.Log("TargetHit!");
                         BossController _boss = GameObject.FindFirstObjectByType<BossController>();
-                        gameManager.bossHealth -= 4;
+                        //gameManager.bossHealth -= 4;
                         _boss.StunBoss();
                         Destroy(hit.transform.gameObject);
                     }
