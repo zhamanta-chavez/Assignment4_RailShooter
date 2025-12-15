@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class ShootScript : MonoBehaviour
 {
@@ -9,6 +11,8 @@ public class ShootScript : MonoBehaviour
     public int shotType = 1;
     public bool isShotGun = false;
 
+    public UnityEvent OnShootSound;
+
     private void Awake()
     {
         //gameManager = GameObject.FindFirstObjectByType<GameManager>();  
@@ -16,10 +20,10 @@ public class ShootScript : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        /*if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             FireWeapon();
-        }
+        }*/
         if (Input.GetKeyDown(KeyCode.Mouse1) && gameManager.shellCount <= 0)
         {
             gameManager.bulletCount = gameManager.maxBulletCount;
@@ -27,12 +31,23 @@ public class ShootScript : MonoBehaviour
         }
     }
 
-    void FireWeapon()
+    public void OnReload()
+    {
+        gameManager.ResetNormalBullets();
+    }
+
+    public void OnQuit()
+    {
+        gameManager.ExitGame();
+    }
+
+    public void OnShoot()
     {
         if (gameManager.bulletCount > 0 || gameManager.shellCount > 0)
         {
             if (gameManager.bossCanDie == true)
             {
+                OnShootSound.Invoke();
                 if (gameManager.shellCount > 0)
                 {
                     gameManager.shellCount--;

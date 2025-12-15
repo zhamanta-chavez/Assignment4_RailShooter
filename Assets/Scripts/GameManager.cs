@@ -165,6 +165,11 @@ public class GameManager : MonoBehaviour
 
     void PlayerDead()
     {
+        BossTargetScript[] targets = FindObjectsByType<BossTargetScript>(FindObjectsSortMode.None);
+        for (int i = 0; i < targets.Length; i++)
+        {
+            Destroy(targets[i].gameObject);
+        }
         hudPanel.SetActive(false);
         deathPanel.SetActive(true);
         Time.timeScale = 0f;
@@ -211,6 +216,7 @@ public class GameManager : MonoBehaviour
 
     public void ExitGame()
     {
+        Debug.Log("Quit");
         Application.Quit();
     }
 }
